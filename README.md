@@ -2,6 +2,10 @@
 
 **A little less scrolling. A little more growing.**
 
+**[Open the interactive demo](https://rishabhjain-code.github.io/instaRJify/)** · [Full-stack API reference](docs/API.md)
+
+The free GitHub Pages site is a separate, browser-only React demo with fictional content: filter posts by purpose, follow sample creators, and create, edit, or delete local text posts. It needs no account. Changes stay in your browser and can be reset. It does **not** run the Express/MySQL backend or demonstrate its authentication, privacy enforcement, image uploads, or transaction guarantees; those belong to the full-stack implementation below.
+
 A purpose-focused social platform for learning, fitness, creativity, and mindful living. Choose a topic, share a small moment of progress, and build a circle on your own terms.
 
 ![The instaRJify web application, showing synthetic demo content](docs/images/feed.png)
@@ -57,6 +61,20 @@ Compose binds its published ports to localhost. For an actual deployment, config
 
 ## Engineering decisions
 
+### Preview or redeploy the free demo
+
+```powershell
+npm run build:demo
+npm run test:demo
+npm run preview:demo -w Frontend/my_app
+```
+
+Open `http://127.0.0.1:4174/instaRJify/`. This requires no database and uses the separate `Frontend/my_app/demo` entry point. The normal `npm run build` and `npm run dev` remain the real full-stack app. `.github/workflows/pages.yml` builds and browser-tests the demo before deploying it on pushes to `main`; failed checks prevent deployment. The published artifact contains only the static demo build, never `.env`, the backend, or database files. No paid cloud resources are needed.
+
+Demo storage is limited to 25 text posts and the three sample creators. It is not a backup or shared account; storage failures are reported in the UI. **Reset demo** clears this demo's changes without touching other browser storage. The dark theme uses VS Code Dark Modern colors.
+
+### Full-stack implementation
+
 | Concern           | Implementation and reason                                                                                                                                                                                                           |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Clear boundaries  | Controllers own HTTP; services own rules and transaction boundaries; repositories own SQL and explicit DTOs. Dependencies are injected through `createApp`.                                                                         |
@@ -82,7 +100,7 @@ See [the API reference](docs/API.md) for routes, request examples, errors, and p
 
 **Retention is explicit rather than hidden.** Sessions expire after seven days; expired rows for a user are removed during a subsequent login. Operators should also schedule indexed deletion of expired sessions. Post retry records live until account deletion, including tombstones for deleted posts. An archival/retention policy is a future operational decision.
 
-Email verification, password recovery, account moderation, distributed feed fan-out, and cloud deployment are outside this version's scope.
+Email verification, password recovery, account moderation, distributed feed fan-out, and hosting the live backend are outside this version's scope. The static GitHub Pages demo is intentionally separate.
 
 ## Project layout
 
@@ -98,7 +116,9 @@ Backend/
   test/             unit, API, failure-injection, and concurrency tests
 Frontend/my_app/
   src/Components/   React views and shared UI primitives
+  demo/             standalone, explicitly labelled browser-only portfolio demo
 e2e/                complete browser journeys
+e2e-demo/           static demo journeys; no database required
 docker/             local database initialization
 ```
 
@@ -125,3 +145,4 @@ GitHub Actions repeats the checks on Linux and starts the complete containerized
 | Bounded, stable reads                         | Equal-timestamp/new-insertion pagination tests, page-size validation, and explicit feed/suggestions SQL-query-count checks                                   |
 | Safe input and media boundaries               | Mass-assignment, SQL-metacharacter, malformed JSON, body/file size, decoded-image, Origin, and rate-limit tests                                              |
 | Working full-stack app                        | Desktop registration-to-edit-to-login journey, private-follow journey, narrow-viewport check, production build, and container readiness smoke test           |
+| Free, honest portfolio demo                   | `e2e-demo/demo.spec.js`: filtering without API calls, local CRUD/reload, follows/search/reset, corrupt/unavailable storage, mobile layout, and source links  |

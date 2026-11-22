@@ -15,6 +15,8 @@
     "dev": "concurrently -k -n api,web \"npm run dev -w Backend\" \"npm run dev -w Frontend/my_app\"",
     "start": "npm start -w Backend",
     "build": "npm run build -w Frontend/my_app",
+    "build:demo": "npm run build:demo -w Frontend/my_app",
+    "test:demo": "playwright test --config playwright.demo.config.js",
     "db:migrate": "npm run db:migrate -w Backend",
     "db:seed": "npm run db:seed -w Backend",
     "lint": "eslint . && prettier --check .",

@@ -8,6 +8,7 @@ export default [
     ignores: [
       "**/node_modules/**",
       "**/dist/**",
+      "**/dist-demo/**",
       "fact/**",
       "**/coverage/**",
       "**/playwright-report/**",
@@ -16,7 +17,7 @@ export default [
   },
   js.configs.recommended,
   {
-    files: ["e2e/**/*.js"],
+    files: ["e2e/**/*.js", "e2e-demo/**/*.js"],
     languageOptions: { globals: globals.browser },
   },
   {
@@ -25,7 +26,7 @@ export default [
     rules: { "no-unused-vars": ["error", { argsIgnorePattern: "^_" }] },
   },
   {
-    files: ["Frontend/my_app/src/**/*.{js,jsx}"],
+    files: ["Frontend/my_app/{src,demo}/**/*.{js,jsx}"],
     languageOptions: {
       sourceType: "module",
       globals: globals.browser,
