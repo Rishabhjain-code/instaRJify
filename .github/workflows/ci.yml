@@ -1,0 +1,68 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: ci-only-not-for-deployments
+          MYSQL_ROOT_HOST: "%"
+          MYSQL_DATABASE: instarjify
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
+    env:
+      NODE_ENV: test
+      DATABASE_URL: mysql://root:ci-only-not-for-deployments@127.0.0.1:3306/instarjify
+      TEST_DATABASE_URL: mysql://root:ci-only-not-for-deployments@127.0.0.1:3306/instarjify_test
+      LOG_LEVEL: silent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --no-fund --no-audit
+      - run: npm audit --omit=dev
+      - name: Create isolated test database
+        run: node -e "const mysql=require('mysql2/promise'); (async()=>{const db=await mysql.createConnection(process.env.DATABASE_URL);try{await db.query('CREATE DATABASE instarjify_test CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci')}finally{await db.end()}})().catch(e=>{console.error(e.code);process.exitCode=1})"
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - name: Verify the containerized application
+        id: compose
+        run: |
+          npm run setup
+          docker compose up --build --wait --wait-timeout 180
+          curl --fail --silent --show-error http://localhost:3000/health/ready
+      - name: Container logs on failure
+        if: failure() && steps.compose.outcome == 'failure'
+        run: docker compose logs --no-color app mysql
+      - name: Stop verification containers
+        if: always() && steps.compose.outcome != 'skipped' && steps.compose.outcome != ''
+        run: docker compose down
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-results
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7

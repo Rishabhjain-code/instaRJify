@@ -1,0 +1,13 @@
+.git
+node_modules
+**/node_modules
+**/dist
+.env
+.env.*
+**/secrets.json
+fact
+note.txt
+Frontend/my_app/public
+playwright-report
+test-results
+**/*.log

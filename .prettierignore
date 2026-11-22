@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+playwright-report
+test-results
+package-lock.json
+Backend/model/secrets.json
+fact
+note.txt
+Frontend/my_app/public/image
+.env

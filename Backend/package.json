@@ -1,0 +1,32 @@
+{
+  "name": "@instarjify/api",
+  "version": "1.0.0",
+  "private": true,
+  "main": "app.js",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "db:migrate": "node scripts/migrate.js",
+    "db:seed": "node scripts/seed.js",
+    "test:unit": "node --test test/unit/*.test.js",
+    "test:integration": "node --test --test-concurrency=1 test/integration/*.test.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "multer": "^2.0.2",
+    "mysql2": "^3.14.0",
+    "pino": "^10.1.0",
+    "pino-http": "^11.0.0",
+    "sharp": "^0.35.5",
+    "zod": "^4.1.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4"
+  }
+}

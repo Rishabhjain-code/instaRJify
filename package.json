@@ -1,0 +1,38 @@
+{
+  "name": "instarjify",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A purpose-focused social platform built with React, Express, and MySQL.",
+  "workspaces": [
+    "Backend",
+    "Frontend/my_app"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.js",
+    "dev": "concurrently -k -n api,web \"npm run dev -w Backend\" \"npm run dev -w Frontend/my_app\"",
+    "start": "npm start -w Backend",
+    "build": "npm run build -w Frontend/my_app",
+    "db:migrate": "npm run db:migrate -w Backend",
+    "db:seed": "npm run db:seed -w Backend",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "npm run test:unit -w Backend",
+    "test:integration": "npm run test:integration -w Backend",
+    "test:e2e": "playwright test",
+    "check": "npm run lint && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@playwright/test": "^1.56.1",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^16.5.0",
+    "prettier": "^3.6.2"
+  }
+}
